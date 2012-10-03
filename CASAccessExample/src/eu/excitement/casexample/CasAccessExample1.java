@@ -28,13 +28,6 @@ import de.tudarmstadt.ukp.dkpro.core.api.segmentation.type.Token;
 
 import java.util.*; 
 
-
-// TODO to be merged finally, 
-// It needs modifications on 
-// EntailmentMetadata (as TOP) 
-// Pair (as TOP) 
-// Update auto-generated JCAS java files (with above) 
-
 /**
  * This is a very short example that shows how to: 
  * 1) generate a CAS (as JCas) 
