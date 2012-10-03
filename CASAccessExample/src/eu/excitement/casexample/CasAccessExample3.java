@@ -116,13 +116,11 @@ public class CasAccessExample3 {
 		PrintAnnotations.printAnnotations(viewT.getCas(), System.out); 
 
 		// do the same thing for HypothesisView, but I've wrapped it as a method
-		// addAnnotationTo(JCas aJcas, String viewName); 	
 		try {
 			addAnnotationTo(jcas2, "HypothesisView");
 		}
-		catch (LAPException e)
+		catch (Exception e)
 		{
-			System.out.println(e.getMessage()); 
 			e.printStackTrace(); 
 		}
 		// check annotations 
@@ -130,7 +128,7 @@ public class CasAccessExample3 {
 	}
 	
 	
-	static private void addAnnotationTo(JCas aJCas, String viewName) throws LAPException
+	static private void addAnnotationTo(JCas aJCas, String viewName) throws Exception
 	{
 		// NOte: this is just an example, not really efficient. . 
 		// This method actually inits the AE every time it runs. 
@@ -164,7 +162,7 @@ public class CasAccessExample3 {
 		}
 		catch (Exception e)
 		{
-			throw new LAPException("Something wrong", e); 
+			throw e; 
 		}
 
 	}

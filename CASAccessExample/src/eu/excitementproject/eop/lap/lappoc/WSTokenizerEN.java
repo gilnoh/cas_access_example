@@ -17,6 +17,10 @@ import org.apache.uima.resource.ResourceSpecifier;
 import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.XMLInputSource;
 
+import eu.excitement.type.entailment.EntailmentMetadata;
+import eu.excitement.type.entailment.Hypothesis;
+import eu.excitement.type.entailment.Pair;
+import eu.excitement.type.entailment.Text;
 import eu.excitementproject.eop.lap.LAPAccess;
 import eu.excitementproject.eop.lap.LAPException;
 
@@ -73,7 +77,6 @@ public class WSTokenizerEN implements LAPAccess {
 		
 		// now aJCas has TextView, HypothesisView and Entailment.* types. (Pair, T and H) 
 		// it is time to add linguistic annotations 
-		
 		addAnnotationOn(aJCas, "TextView");
 		addAnnotationOn(aJCas, "HypothesisView"); 
 		
@@ -132,6 +135,10 @@ public class WSTokenizerEN implements LAPAccess {
 	 * SOFA string (text on TextView, h on HView). 
 	 * And it also annotates them with Entailment.Metadata, Entailment.Pair, 
 	 * Entailment.Text and Entailment.Hypothesis. (But it adds no linguistic annotations. )  
+	 * 
+	 * <P>
+	 * This method does not Pair ID, or Metatdata.channel, source, collectionID, etc. 
+	 * They should be set by the caller. 
 	 * @param aJCas 
 	 * @param text
 	 * @param hypothesis
@@ -154,16 +161,33 @@ public class WSTokenizerEN implements LAPAccess {
 		textView.setDocumentText(text);
 		hypoView.setDocumentText(hypothesis);
 		
-		// annotate Text 
+		// annotate Text (on TextView) 
+		Text t = new Text(textView);
+		t.setBegin(0); t.setEnd(text.length()); 
+		t.addToIndexes(); 
 		
-		// annotate Hypothesis 
-
-		// annotate Pair 
-
-		// annotate Metadata 
+		// annotate Hypothesis (on HypothesisView) 
+		Hypothesis h = new Hypothesis(hypoView);
+		h.setBegin(0); h.setEnd(hypothesis.length()); 
+		h.addToIndexes(); 
+		
+		// annotate Pair (on the top CAS) 
+		Pair p = new Pair(aJCas); 
+		p.setText(t); // points T & H 
+		p.setHypothesis(h); 
+		// p.setPairID() is not set by this method. If needed, the caller should set it. 
+		p.addToIndexes(); // this is indexed to the 
+		
+		// annotate Metadata (on the top CAS) 
+		EntailmentMetadata m = new EntailmentMetadata(aJCas); 
+		m.setLanguage(this.languageIdentifier); 
+		// again, the method don't set channel, origin, etc on the metadata. If needed, the caller should set it. 
 		
 	}
 		
+	/**
+	 * Path to actual "worker AE". If you don't use AE, this isn't needed (unlike typeAE). 
+	 */
 	private final String descPath = "./desc/WSSeparator.xml"; 
 
 	/**
@@ -171,5 +195,9 @@ public class WSTokenizerEN implements LAPAccess {
 	 * don't call AE, (or not using any AE), you need this. AE provides .newJCas() 
 	 */
 	private final AnalysisEngine typeAE; 
+	
+	/**
+	 * We will set language directly with this id. 
+	 */
 	private final String languageIdentifier = "EN"; 
 }
