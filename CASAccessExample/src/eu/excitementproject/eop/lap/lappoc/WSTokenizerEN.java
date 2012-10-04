@@ -24,10 +24,35 @@ import eu.excitement.type.entailment.Text;
 import eu.excitementproject.eop.lap.LAPAccess;
 import eu.excitementproject.eop.lap.LAPException;
 
+//TODO before merge? 
+// 1) make it independent to casexample. (moving PrintAnnotations and WSSeparator into lappoc) 
+// 
+
+/**
+ * A sample LAP component that follows the interface LAPAccess. 
+ * This implementation intentionally uses only the "addAnnotationOn(Jcas, String)" 
+ * as the main annotation method. This may be a bit inefficient (especially when 
+ * you use AE in addAnnotationOn()), but it makes this sample implementation as a
+ * "generic" one. --- if you replace "addAnnotationOn()" for your own annotator, 
+ * you automatically get other methods like "generateSingleTHPair()" and 
+ * "processRawInputFormat()". 
+ * 
+ * Note that addAnnotationOn() of this sample LAP only annotates "Token" by 
+ * whitespace separation. Replace it with a real linguistic analysys component, 
+ * (and add some codes for "Language" and other metadata) you get your LAP. 
+ * (Again, this may not be an efficient implementation.) 
+ * 
+ * Note that generating a new CAS is an expansive operation. try to reuse 
+ * existing one by cleaning it up with reset().
+ * 
+ * @author Gil 
+ *
+ */
 public class WSTokenizerEN implements LAPAccess {
 
 	public WSTokenizerEN() throws LAPException {
-		// setting up the AE, which is needed to get a new JCAS 
+		// setting up the AE, which is needed to get a new JCAS
+		// note that you need at least one AE to get a JCAS. (valina UIMA) 
 		try {
 			// Type System AE 
 			XMLInputSource in = new XMLInputSource("./desc/DummyAE.xml"); // This AE does nothing, but holding all types. 
@@ -182,6 +207,7 @@ public class WSTokenizerEN implements LAPAccess {
 		EntailmentMetadata m = new EntailmentMetadata(aJCas); 
 		m.setLanguage(this.languageIdentifier); 
 		// again, the method don't set channel, origin, etc on the metadata. If needed, the caller should set it. 
+		m.addToIndexes(); 
 		
 	}
 		
