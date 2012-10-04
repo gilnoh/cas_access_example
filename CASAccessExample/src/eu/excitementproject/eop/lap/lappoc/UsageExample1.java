@@ -1,5 +1,7 @@
 package eu.excitementproject.eop.lap.lappoc;
 
+import java.io.File;
+
 import org.apache.uima.jcas.JCas;
 import eu.excitementproject.eop.lap.LAPException;
 
@@ -40,12 +42,17 @@ public class UsageExample1 {
 			System.exit(1); 
 		}
 		
-		// TODO annotate any CAS 
 		
-		
-		// TODO process TE data format, and produce XMI files. 
-		
-		
+		// TODO process TE data format, and produce XMI files.
+		File input = new File("./output/small.xml"); 
+		File outputDir = new File("./output/"); 
+		try {
+			lap.processRawInputFormat(input, outputDir);
+		} catch (LAPException e)
+		{
+			e.printStackTrace(); 
+		}
+	
 		// TODO PlatformCASPRober also provides a probe method 
 		// for XMI files: probeXmi() --- this does the same thing 
 		// of probeCas(), but on XMI. 

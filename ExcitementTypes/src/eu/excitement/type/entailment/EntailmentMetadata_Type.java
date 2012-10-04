@@ -16,7 +16,7 @@ import org.apache.uima.jcas.cas.TOP_Type;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** This type provides metadata for entailment problem.
- * Updated by JCasGen Tue Sep 25 20:29:12 CEST 2012
+ * Updated by JCasGen Thu Oct 04 17:40:03 CEST 2012
  * @generated */
 public class EntailmentMetadata_Type extends TOP_Type {
   /** @generated */

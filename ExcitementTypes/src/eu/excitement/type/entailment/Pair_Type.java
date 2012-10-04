@@ -16,7 +16,7 @@ import org.apache.uima.jcas.cas.TOP_Type;
 import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** This type represents a text-hypothesis pair.
- * Updated by JCasGen Tue Sep 25 20:29:13 CEST 2012
+ * Updated by JCasGen Thu Oct 04 17:40:04 CEST 2012
  * @generated */
 public class Pair_Type extends TOP_Type {
   /** @generated */
@@ -99,6 +99,24 @@ public class Pair_Type extends TOP_Type {
     ll_cas.ll_setRefValue(addr, casFeatCode_hypothesis, v);}
     
   
+ 
+  /** @generated */
+  final Feature casFeat_goldAnswer;
+  /** @generated */
+  final int     casFeatCode_goldAnswer;
+  /** @generated */ 
+  public String getGoldAnswer(int addr) {
+        if (featOkTst && casFeat_goldAnswer == null)
+      jcas.throwFeatMissing("goldAnswer", "eu.excitement.type.entailment.Pair");
+    return ll_cas.ll_getStringValue(addr, casFeatCode_goldAnswer);
+  }
+  /** @generated */    
+  public void setGoldAnswer(int addr, String v) {
+        if (featOkTst && casFeat_goldAnswer == null)
+      jcas.throwFeatMissing("goldAnswer", "eu.excitement.type.entailment.Pair");
+    ll_cas.ll_setStringValue(addr, casFeatCode_goldAnswer, v);}
+    
+  
 
 
 
@@ -119,6 +137,10 @@ public class Pair_Type extends TOP_Type {
  
     casFeat_hypothesis = jcas.getRequiredFeatureDE(casType, "hypothesis", "eu.excitement.type.entailment.Hypothesis", featOkTst);
     casFeatCode_hypothesis  = (null == casFeat_hypothesis) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_hypothesis).getCode();
+
+ 
+    casFeat_goldAnswer = jcas.getRequiredFeatureDE(casType, "goldAnswer", "eu.excitement.type.entailment.Decision", featOkTst);
+    casFeatCode_goldAnswer  = (null == casFeat_goldAnswer) ? JCas.INVALID_FEATURE_CODE : ((FeatureImpl)casFeat_goldAnswer).getCode();
 
   }
 }

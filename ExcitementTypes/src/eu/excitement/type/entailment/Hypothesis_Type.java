@@ -13,7 +13,7 @@ import org.apache.uima.jcas.tcas.Annotation_Type;
 
 /** This type represents a hypothesis part of a T-H pair. This type annotates a hypoth-
 esis item within the HypothesisView. It can occur multiple times (for multi-hypothesis problems)
- * Updated by JCasGen Tue Sep 25 20:29:13 CEST 2012
+ * Updated by JCasGen Thu Oct 04 17:40:04 CEST 2012
  * @generated */
 public class Hypothesis_Type extends Annotation_Type {
   /** @generated */

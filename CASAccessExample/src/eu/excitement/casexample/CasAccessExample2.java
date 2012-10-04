@@ -120,7 +120,8 @@ public class CasAccessExample2 {
 		    p.setText(t); // t is an annotation on TextView 
 		    p.setHypothesis(h); // h is an annotation on HypothesisView 
 		    //p.setBegin(0); p.setEnd(t.getEnd()); 
-		    p.setPairID("M777"); 		    
+		    p.setPairID("M777");
+		    p.setGoldAnswer("ENTAILMENT");
 		    p.addToIndexes(); 
 		    
 		    // Let's pass the top CAS to a function, which will try to 
@@ -209,6 +210,7 @@ public class CasAccessExample2 {
 				// note that Text annotation is actually on TextView. 
 				System.out.printf("Hypothesis of the pair: %s\n", p.getHypothesis().getCoveredText());
 				// note that Hypothesis annotation is actually on HypothesisView. You can access it from pair. 
+				System.out.printf("GoldAnswer of the pair: %s\n", p.getGoldAnswer()); 
 			}
 			System.out.printf("----\nThe CAS had %d pairs.\n====\n", i);
 			

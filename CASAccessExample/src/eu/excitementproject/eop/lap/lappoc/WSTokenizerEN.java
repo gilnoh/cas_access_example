@@ -1,6 +1,8 @@
 package eu.excitementproject.eop.lap.lappoc;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -10,12 +12,16 @@ import org.apache.uima.UimaContextAdmin;
 import org.apache.uima.analysis_engine.AnalysisEngine;
 import org.apache.uima.analysis_engine.AnalysisEngineProcessException;
 import org.apache.uima.cas.CASException;
+import org.apache.uima.cas.CASRuntimeException;
+import org.apache.uima.cas.impl.XmiCasSerializer;
 import org.apache.uima.jcas.JCas;
 import org.apache.uima.resource.Resource;
 import org.apache.uima.resource.ResourceInitializationException;
 import org.apache.uima.resource.ResourceSpecifier;
 import org.apache.uima.util.InvalidXMLException;
 import org.apache.uima.util.XMLInputSource;
+import org.apache.uima.util.XMLSerializer;
+import org.xml.sax.SAXException;
 
 import eu.excitement.type.entailment.EntailmentMetadata;
 import eu.excitement.type.entailment.Hypothesis;
@@ -24,8 +30,9 @@ import eu.excitement.type.entailment.Text;
 import eu.excitementproject.eop.lap.LAPAccess;
 import eu.excitementproject.eop.lap.LAPException;
 
-//TODO before merge? 
+//TODO things to consider before merge. 
 // 1) make it independent to casexample. (moving PrintAnnotations and WSSeparator into lappoc) 
+// 2) reflect the updates on type system (Entailment.Pair) -- it's okay. if you don't do it, it will generate errors :-) 
 // 
 
 /**
@@ -77,16 +84,85 @@ public class WSTokenizerEN implements LAPAccess {
 	@Override
 	public void processRawInputFormat(File inputFile, File outputDir)
 			throws LAPException {
-		// TODO: keep in mind about the orthogonality, changing addAnnotationTo should work for any annotation methods 
+		JCas aJCas = null; 
+		try {
+			aJCas = typeAE.newJCas(); 
+		} catch(ResourceInitializationException e)
+		{
+			throw new LAPException("Failed to create a JCAS", e); 
+		}
 		
+		// prepare the reader  
+		RawDataFormatReader input = null;
+		
+		try {
+			input = new RawDataFormatReader(inputFile); 
+		}
+		catch (RawFormatReaderException e)
+		{
+			throw new LAPException("Failed to read XML input format", e); 
+		}
+			
+		@SuppressWarnings("unused")
+		String lang = input.getLanguage(); 
+		@SuppressWarnings("unused")
+		String channel = input.getChannel(); 
+		
+		// for each Pair data 
+		while(input.hasNextPair())
+		{
+			RawDataFormatReader.PairXMLData pair; 
+			try {
+				 pair = input.nextPair(); 
+			}
+			catch (RawFormatReaderException e)
+			{
+				throw new LAPException("Failed to read XML input format", e); 
+			}		
+			
+			// Add TE structure (Views) and types (Entailment.Pair, .Text, .Hypothesis, and .EntailmentMetadata) 
+			addTEViewAndAnnotations(aJCas, pair.getText(), pair.getHypothesis(), pair.getId(), pair.getTask(), pair.getGoldAnswer()); 
 
+			// TODO 
+			// above method does not annotate lang or channel, 
+			// so annotate it directly to Metadata 
+			{
+				
+				
+			}
+
+			// call to addAnnotationOn() each view 
+			addAnnotationOn(aJCas, TEXTVIEW);
+			addAnnotationOn(aJCas, HYPOTHESISVIEW);
+			
+			// serialize 
+			String xmiName = pair.getId() + ".xmi"; 
+			File xmiOutFile = new File(outputDir, xmiName); 
+			
+			try {
+				FileOutputStream out = new FileOutputStream(xmiOutFile);
+				XmiCasSerializer ser = new XmiCasSerializer(aJCas.getTypeSystem());
+				XMLSerializer xmlSer = new XMLSerializer(out, false);
+				ser.serialize(aJCas.getCas(), xmlSer.getContentHandler());
+				out.close();
+			} catch (FileNotFoundException e) {
+				throw new LAPException("Unable to create/open the file" + xmiOutFile.toString(), e);
+			} catch (SAXException e) {
+				throw new LAPException("Failed to serialize the CAS into XML", e); 
+			} catch (IOException e) {
+				throw new LAPException("Unable to access/close the file" + xmiOutFile.toString(), e);
+			}
+
+			// TODO replace this with CommonLogger, when it is there. 
+			System.out.println("Pair " + pair.getId() + "\twritten as " + xmiOutFile.toString() ); 
+			// prepare next round
+			aJCas.reset(); 
+		}
 	}
 
 	@Override
 	public JCas generateSingleTHPairCAS(String text, String hypothesis)
 			throws LAPException {
-		// TODO: keep in mind about the orthogonality changing addAnnotationTo should work for any annotation methods 
-		
 		// get a new JCAS
 		JCas aJCas = null; 
 		try {
@@ -98,12 +174,12 @@ public class WSTokenizerEN implements LAPAccess {
 		}
 		
 		// prepare it with Views and Entailment.* annotations. 
-		addTEViewAndAnnotations(aJCas, text, hypothesis); 
+		addTEViewAndAnnotations(aJCas, text, hypothesis, null, null, null); // last three args are PairId, task, and golden Answer --  which we don't fill here 
 		
 		// now aJCas has TextView, HypothesisView and Entailment.* types. (Pair, T and H) 
 		// it is time to add linguistic annotations 
-		addAnnotationOn(aJCas, "TextView");
-		addAnnotationOn(aJCas, "HypothesisView"); 
+		addAnnotationOn(aJCas, TEXTVIEW);
+		addAnnotationOn(aJCas, HYPOTHESISVIEW); 
 		
 		return aJCas; 
 	}
@@ -162,20 +238,23 @@ public class WSTokenizerEN implements LAPAccess {
 	 * Entailment.Text and Entailment.Hypothesis. (But it adds no linguistic annotations. )  
 	 * 
 	 * <P>
-	 * This method does not Pair ID, or Metatdata.channel, source, collectionID, etc. 
-	 * They should be set by the caller. 
+	 * This method annotates Metadata, but only its "Language" and "task" 
+	 * Other features like channel, source, task, collection and document ID, etc. 
+	 * are *not* set by this method. 
+	 *  
+	 * They should be set by the caller, if needed. 
 	 * @param aJCas 
 	 * @param text
 	 * @param hypothesis
 	 * @return
 	 */
-	private void addTEViewAndAnnotations(JCas aJCas, String text, String hypothesis) throws LAPException {
+	private void addTEViewAndAnnotations(JCas aJCas, String text, String hypothesis, String pairId, String task, String goldAnswer) throws LAPException {
 		
 		// generate views and set SOFA 
 		JCas textView = null; JCas hypoView = null; 
 		try {
-			textView = aJCas.createView("TextView");
-			hypoView = aJCas.createView("HypothesisView"); 
+			textView = aJCas.createView(TEXTVIEW);
+			hypoView = aJCas.createView(HYPOTHESISVIEW); 
 		}
 		catch (CASException e) 
 		{
@@ -200,15 +279,30 @@ public class WSTokenizerEN implements LAPAccess {
 		Pair p = new Pair(aJCas); 
 		p.setText(t); // points T & H 
 		p.setHypothesis(h); 
-		// p.setPairID() is not set by this method. If needed, the caller should set it. 
-		p.addToIndexes(); // this is indexed to the 
+		p.setPairID(pairId); 
+		
+		if (goldAnswer != null && goldAnswer.length() > 0)
+		{
+			try {			
+				p.setGoldAnswer(goldAnswer.toUpperCase()); 
+			}
+			catch (CASRuntimeException e)
+			{
+				// goldAnswer (Decision type) is string-sub-type 
+				// where only some specific strings are permitted. 
+				// If not permitted string was given, it raises CASRuntimeException 
+				// (if the XML is validated, this try/catch is not needed. ... ) 
+				throw new LAPException("Not permitted String value for Pair.goldAnswer: " + goldAnswer.toUpperCase(), e); 			
+			}
+		}
+		p.addToIndexes(); 
 		
 		// annotate Metadata (on the top CAS) 
 		EntailmentMetadata m = new EntailmentMetadata(aJCas); 
 		m.setLanguage(this.languageIdentifier); 
-		// again, the method don't set channel, origin, etc on the metadata. If needed, the caller should set it. 
+		m.setTask(task); 
+		// the method don't set channel, origin, etc on the metadata. If needed, the caller should set it. 
 		m.addToIndexes(); 
-		
 	}
 		
 	/**
@@ -226,4 +320,10 @@ public class WSTokenizerEN implements LAPAccess {
 	 * We will set language directly with this id. 
 	 */
 	private final String languageIdentifier = "EN"; 
+
+	/**
+	 *  string constants 
+	 */
+	private final String TEXTVIEW = "TextView";
+	private final String HYPOTHESISVIEW = "HypothesisView"; 
 }

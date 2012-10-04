@@ -14,8 +14,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 
 /** This type represents a text-hypothesis pair.
- * Updated by JCasGen Tue Sep 25 20:29:13 CEST 2012
- * XML source: /Users/tailblues/Dropbox/excitement_expr/ExcitementTypes/typesystem/desc/type/EntailmentTypes.xml
+ * Updated by JCasGen Thu Oct 04 17:40:04 CEST 2012
+ * XML source: /home/tailblues/progs/cas_access_example/ExcitementTypes/typesystem/desc/type/EntailmentTypes.xml
  * @generated */
 public class Pair extends TOP {
   /** @generated
@@ -113,6 +113,26 @@ resents the text part of this pair.
     if (Pair_Type.featOkTst && ((Pair_Type)jcasType).casFeat_hypothesis == null)
       jcasType.jcas.throwFeatMissing("hypothesis", "eu.excitement.type.entailment.Pair");
     jcasType.ll_cas.ll_setRefValue(addr, ((Pair_Type)jcasType).casFeatCode_hypothesis, jcasType.ll_cas.ll_getFSRef(v));}    
+   
+    
+  //*--------------*
+  //* Feature: goldAnswer
+
+  /** getter for goldAnswer - gets This features records the gold standard answer for this pair. If the pair (and CAS) represents a training data, this value will be filled in with the gold standard answer. If it is a null value, the pair represents a entailment problem that is yet
+to be answered.
+   * @generated */
+  public String getGoldAnswer() {
+    if (Pair_Type.featOkTst && ((Pair_Type)jcasType).casFeat_goldAnswer == null)
+      jcasType.jcas.throwFeatMissing("goldAnswer", "eu.excitement.type.entailment.Pair");
+    return jcasType.ll_cas.ll_getStringValue(addr, ((Pair_Type)jcasType).casFeatCode_goldAnswer);}
+    
+  /** setter for goldAnswer - sets This features records the gold standard answer for this pair. If the pair (and CAS) represents a training data, this value will be filled in with the gold standard answer. If it is a null value, the pair represents a entailment problem that is yet
+to be answered. 
+   * @generated */
+  public void setGoldAnswer(String v) {
+    if (Pair_Type.featOkTst && ((Pair_Type)jcasType).casFeat_goldAnswer == null)
+      jcasType.jcas.throwFeatMissing("goldAnswer", "eu.excitement.type.entailment.Pair");
+    jcasType.ll_cas.ll_setStringValue(addr, ((Pair_Type)jcasType).casFeatCode_goldAnswer, v);}    
   }
 
     

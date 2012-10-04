@@ -12,8 +12,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 /** This type represents a hypothesis part of a T-H pair. This type annotates a hypoth-
 esis item within the HypothesisView. It can occur multiple times (for multi-hypothesis problems)
- * Updated by JCasGen Tue Sep 25 20:29:12 CEST 2012
- * XML source: /Users/tailblues/Dropbox/excitement_expr/ExcitementTypes/typesystem/desc/type/EntailmentTypes.xml
+ * Updated by JCasGen Thu Oct 04 17:40:04 CEST 2012
+ * XML source: /home/tailblues/progs/cas_access_example/ExcitementTypes/typesystem/desc/type/EntailmentTypes.xml
  * @generated */
 public class Hypothesis extends Annotation {
   /** @generated

@@ -12,8 +12,8 @@ import org.apache.uima.jcas.tcas.Annotation;
 
 /** This type represents a text part of a T-H pair. This type annotates a text item within
 the TextView. It can occur multiple times (for multi-text problems).
- * Updated by JCasGen Tue Sep 25 20:29:13 CEST 2012
- * XML source: /Users/tailblues/Dropbox/excitement_expr/ExcitementTypes/typesystem/desc/type/EntailmentTypes.xml
+ * Updated by JCasGen Thu Oct 04 17:40:04 CEST 2012
+ * XML source: /home/tailblues/progs/cas_access_example/ExcitementTypes/typesystem/desc/type/EntailmentTypes.xml
  * @generated */
 public class Text extends Annotation {
   /** @generated
