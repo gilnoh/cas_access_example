@@ -43,7 +43,7 @@ public class UsageExample1 {
 		}
 		
 		
-		// TODO process TE data format, and produce XMI files.
+		// process TE data format, and produce XMI files.
 		File input = new File("./output/small.xml"); 
 		File outputDir = new File("./output/"); 
 		try {
@@ -53,9 +53,15 @@ public class UsageExample1 {
 			e.printStackTrace(); 
 		}
 	
-		// TODO PlatformCASPRober also provides a probe method 
+		// PlatformCASPRober also provides a probe method 
 		// for XMI files: probeXmi() --- this does the same thing 
 		// of probeCas(), but on XMI. 
+		File testXmi = new File("./output/3.xmi"); 
+		try {
+			PlatformCASProber.probeXmi(testXmi, System.out);
+		} catch (LAPException e) {
+			e.printStackTrace();
+		} 
 		
 	}
 	
